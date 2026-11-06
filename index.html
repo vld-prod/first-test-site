@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Многофункциональный статический сайт: переводчик, конвертер валют, генератор паролей, QR-коды, JSON-форматер." />
+  <title>Toolbox — многофункциональный набор инструментов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">TS</span>
+      <div>
+        <h1>Toolbox</h1>
+        <p>Переводчик, валюты, пароли, QR и JSON в одном месте</p>
+      </div>
+    </div>
+    <div class="header-pill">GitHub Pages • полностью на клиенте</div>
+  </header>
+
+  <nav class="tabs" aria-label="Разделы сайта" role="tablist">
+    <button class="tab is-active" data-tab="translator" role="tab" aria-selected="true">Переводчик</button>
+    <button class="tab" data-tab="currency" role="tab" aria-selected="false">Валюты</button>
+    <button class="tab" data-tab="password" role="tab" aria-selected="false">Пароли</button>
+    <button class="tab" data-tab="qr" role="tab" aria-selected="false">QR-коды</button>
+    <button class="tab" data-tab="json" role="tab" aria-selected="false">JSON</button>
+  </nav>
+
+  <main class="content">
+    <section class="panel is-active" id="translator" role="tabpanel">
+      <div class="panel-grid">
+        <article class="card">
+          <h2>Переводчик</h2>
+          <p class="muted">По умолчанию использует бесплатный MyMemory. Можно подключить DeepL API по ключу.</p>
+          <div class="row two">
+            <label>
+              Источник
+              <select id="srcLang">
+                <option value="AUTO">Автоопределение</option>
+                <option value="RU">Русский</option>
+                <option value="EN">Английский</option>
+                <option value="DE">Немецкий</option>
+                <option value="FR">Французский</option>
+                <option value="ES">Испанский</option>
+                <option value="IT">Итальянский</option>
+                <option value="PT">Португальский</option>
+                <option value="ZH">Китайский</option>
+                <option value="JA">Японский</option>
+              </select>
+            </label>
+            <label>
+              Цель
+              <select id="dstLang">
+                <option value="RU">Русский</option>
+                <option value="EN">Английский</option>
+                <option value="DE">Немецкий</option>
+                <option value="FR">Французский</option>
+                <option value="ES">Испанский</option>
+                <option value="IT">Итальянский</option>
+                <option value="PT">Португальский</option>
+                <option value="ZH">Китайский</option>
+                <option value="JA">Японский</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            Текст для перевода
+            <textarea id="sourceText" rows="7" placeholder="Вставь текст..."></textarea>
+          </label>
+          <div class="actions">
+            <button id="translateBtn" class="btn primary">Перевести</button>
+            <button id="swapBtn" class="btn ghost">Поменять языки</button>
+          </div>
+          <label>
+            Результат
+            <textarea id="resultText" rows="7" readonly placeholder="Здесь появится перевод..."></textarea>
+          </label>
+          <div class="actions">
+            <button id="copyTranslation" class="btn ghost">Скопировать перевод</button>
+          </div>
+        </article>
+
+        <article class="card accent">
+          <h2>Подключение DeepL API</h2>
+          <p class="muted">Ключ хранится только в браузере (localStorage). Публичный сайт не место для постоянного секрета — используй только свой браузер.</p>
+          <label>
+            DeepL API Key
+            <input id="deeplKey" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx" autocomplete="off" />
+          </label>
+          <label>
+            Тип ключа
+            <select id="deeplEndpoint">
+              <option value="free">Free API</option>
+              <option value="pro">Pro API</option>
+            </select>
+          </label>
+          <div class="row two">
+            <button id="saveDeepl" class="btn primary">Сохранить ключ</button>
+            <button id="clearDeepl" class="btn ghost">Удалить ключ</button>
+          </div>
+          <div id="deeplStatus" class="status info">DeepL не подключён: перевод через MyMemory.</div>
+          <details class="hint">
+            <summary>Как получить ключ</summary>
+            <ol>
+              <li>Зарегистрируйся на deepl.com/pro и создай API key.</li>
+              <li>Вставь ключ сюда, выбери Free/Pro.</li>
+              <li>Перевод будет пытаться идти через DeepL; при ошибке CORS/network автоматически откатится на MyMemory.</li>
+            </ol>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="currency" role="tabpanel" hidden>
+      <div class="panel-grid">
+        <article class="card">
+          <h2>Конвертер валют</h2>
+          <p class="muted">Курсы от Frankfurter (ECB). API бесплатный и без ключа.</p>
+          <label>
+            Сумма
+            <input id="amount" type="number" value="100" min="0" step="0.01" />
+          </label>
+          <div class="row two">
+            <label>
+              Из
+              <select id="fromCurrency"></select>
+            </label>
+            <label>
+              В
+              <select id="toCurrency"></select>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="convertBtn" class="btn primary">Конвертировать</button>
+            <button id="swapCurrencies" class="btn ghost">Поменять</button>
+          </div>
+          <div class="result-box" id="currencyResult">—</div>
+          <p id="currencyMeta" class="muted small"></p>
+        </article>
+        <article class="card accent">
+          <h2>Идеи для пользы</h2>
+          <ul class="nice-list">
+            <li>Сравнивай курс перед покупкой за рубежом.</li>
+            <li>Используй как быстрый калькулятор для путешествий.</li>
+            <li>Добавляй свои часто используемые пары и проверяй кросс-курс.</li>
+            <li>API без регистрации — можно развернуть на GitHub Pages и пользоваться с телефона.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="password" role="tabpanel" hidden>
+      <div class="panel-grid">
+        <article class="card">
+          <h2>Генератор паролей</h2>
+          <div class="row two">
+            <label>
+              Длина
+              <input id="pwdLength" type="range" min="8" max="64" value="16" />
+              <span id="pwdLengthValue" class="value-badge">16</span>
+            </label>
+            <label>
+              Количество
+              <input id="pwdCount" type="number" min="1" max="10" value="5" />
+            </label>
+          </div>
+          <div class="checks">
+            <label><input type="checkbox" id="pwdLower" checked /> строчные a-z</label>
+            <label><input type="checkbox" id="pwdUpper" checked /> заглавные A-Z</label>
+            <label><input type="checkbox" id="pwdDigits" checked /> цифры 0-9</label>
+            <label><input type="checkbox" id="pwdSymbols" checked /> символы !@#$%</label>
+          </div>
+          <div class="actions">
+            <button id="genPwdBtn" class="btn primary">Сгенерировать</button>
+            <button id="copyPwdBtn" class="btn ghost">Скопировать первый</button>
+          </div>
+          <pre id="pwdOutput" class="code-box"></pre>
+          <div id="pwdStrength" class="status info">Сила пароля: —</div>
+        </article>
+        <article class="card accent">
+          <h2>Безопасность</h2>
+          <ul class="nice-list">
+            <li>Генерация идёт только в браузере, пароли никуда не отправляются.</li>
+            <li>Используется криптографический Random, а не Math.random.</li>
+            <li>Никогда не переиспользуй пароли между сервисами.</li>
+            <li>Храни важные пароли в менеджере паролей, а не в заметках.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="qr" role="tabpanel" hidden>
+      <div class="panel-grid">
+        <article class="card">
+          <h2>Генератор QR-кодов</h2>
+          <label>
+            Текст или ссылка
+            <textarea id="qrText" rows="4" placeholder="https://example.com"></textarea>
+          </label>
+          <div class="row two">
+            <label>
+              Размер
+              <select id="qrSize">
+                <option value="192">192 px</option>
+                <option value="256" selected>256 px</option>
+                <option value="384">384 px</option>
+                <option value="512">512 px</option>
+              </select>
+            </label>
+            <label>
+              Цвет фона
+              <select id="qrBg">
+                <option value="#ffffff">Белый</option>
+                <option value="#f8fafc">Светлый</option>
+                <option value="#0b1020">Тёмный</option>
+              </select>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="qrBtn" class="btn primary">Создать QR</button>
+            <button id="downloadQr" class="btn ghost">Скачать PNG</button>
+          </div>
+          <div class="qr-wrap">
+            <canvas id="qrCanvas" width="256" height="256" aria-label="QR-код"></canvas>
+          </div>
+        </article>
+        <article class="card accent">
+          <h2>Где полезно</h2>
+          <ul class="nice-list">
+            <li>Ссылки на профили, репозитории, меню и формы.</li>
+            <li>Wi-Fi пароли и инструкции.</li>
+            <li>Обратная связь, контакты, события календаря.</li>
+            <li>Выгрузка PNG работает офлайн, после генерации.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="json" role="tabpanel" hidden>
+      <div class="panel-grid">
+        <article class="card">
+          <h2>JSON-форматер / валидатор</h2>
+          <label>
+            Входной JSON
+            <textarea id="jsonInput" rows="10" placeholder='{"hello":"world","items":[1,2,3]}'></textarea>
+          </label>
+          <div class="actions">
+            <button id="formatJson" class="btn primary">Форматировать</button>
+            <button id="minifyJson" class="btn ghost">Минифицировать</button>
+            <button id="copyJson" class="btn ghost">Скопировать</button>
+          </div>
+          <label>
+            Результат
+            <textarea id="jsonOutput" rows="10" readonly placeholder="Здесь появится результат..."></textarea>
+          </label>
+          <div id="jsonStatus" class="status info">Ожидание ввода...</div>
+        </article>
+        <article class="card accent">
+          <h2>Подсказки</h2>
+          <ul class="nice-list">
+            <li>Проверяет синтаксис и показывает понятную ошибку.</li>
+            <li>Отлично для API-ответов и конфигов.</li>
+            <li>Можно быстро привести JSON к читаемому виду перед коммитом.</li>
+            <li>Всё выполняется локально, данные не уходят на сервер.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Сделано для GitHub Pages. Статический сайт: HTML, CSS и JavaScript без сборки.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
